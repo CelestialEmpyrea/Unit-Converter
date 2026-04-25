@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distance Converter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --surface3: #252525;
+    --border: #2e2e2e;
+    --accent: #e8ff5a;
+    --accent-soft: rgba(232,255,90,0.08);
+    --text: #e8e8e8;
+    --text-dim: #888;
+    --text-muted: #555;
+    --danger: #ff5a5a;
+    --teal: #5affda;
+    --orange: #ffaa5a;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 80px;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────── */
+  .header {
+    width: 100%; max-width: 800px;
+    margin-bottom: 36px;
+    display: flex; align-items: baseline; gap: 16px;
+    border-bottom: 1px solid var(--border); padding-bottom: 16px;
+  }
+  .header h1 {
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent);
+  }
+  .header .sub {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-muted); letter-spacing: 0.08em;
+  }
+
+  /* ── Tabs ───────────────────────────────────────────────────── */
+  .mode-tabs {
+    width: 100%; max-width: 800px;
+    display: flex; margin-bottom: 22px;
+    border: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    border-right: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--mono);
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 10px 16px; cursor: pointer; transition: all 0.15s;
+  }
+  .tab-btn:last-child { border-right: none; }
+  .tab-btn.active { background: var(--accent); color: #0e0e0e; font-weight: 600; }
+  .tab-btn:not(.active):hover { background: var(--surface2); color: var(--text); }
+
+  /* ── Controls row ───────────────────────────────────────────── */
+  .controls-row {
+    width: 100%; max-width: 800px;
+    display: flex; align-items: center;
+    justify-content: space-between;
+    gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .ctrl-group { display: flex; align-items: center; gap: 10px; }
+  .ctrl-label {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  .dec-btns { display: flex; border: 1px solid var(--border); }
+  .dec-btn {
+    background: transparent; border: none;
+    border-right: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--mono); font-size: 11px;
+    width: 30px; height: 28px; cursor: pointer; transition: all 0.12s;
+  }
+  .dec-btn:last-child { border-right: none; }
+  .dec-btn.active { background: var(--surface2); color: var(--accent); font-weight: 600; }
+  .dec-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
+
+  .order-chips { display: flex; gap: 4px; align-items: center; }
+  .order-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 10px; cursor: grab; user-select: none; transition: all 0.12s;
+  }
+  .order-chip:active { cursor: grabbing; }
+  .order-chip.drag-over { border-color: var(--accent); color: var(--accent); }
+  .order-chip.dragging { opacity: 0.3; }
+
+  /* ── Single panel ───────────────────────────────────────────── */
+  .panel { width: 100%; max-width: 800px; }
+
+  .unit-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); margin-bottom: 16px;
+  }
+  .unit-cell {
+    background: var(--surface); padding: 18px 20px 14px;
+    position: relative; transition: background 0.12s;
+  }
+  .unit-cell:focus-within { background: var(--surface2); }
+  .unit-cell:focus-within .unit-label { color: var(--accent); }
+
+  /* Bolder unit labels in single mode */
+  .unit-label {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-dim); display: block; margin-bottom: 10px; transition: color 0.12s;
+  }
+  .unit-input {
+    width: 100%; background: transparent; border: none; outline: none;
+    font-family: var(--mono); font-size: 24px; font-weight: 300;
+    color: var(--text); caret-color: var(--accent);
+  }
+  .unit-input::placeholder { color: var(--text-muted); }
+  .unit-input::-webkit-outer-spin-button,
+  .unit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .unit-abbr {
+    position: absolute; right: 20px; bottom: 16px;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-muted); letter-spacing: 0.08em;
+  }
+
+  /* ── Copy bar ───────────────────────────────────────────────── */
+  .copy-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 14px 16px; display: flex; align-items: center;
+    gap: 10px; margin-bottom: 6px;
+  }
+  .copy-output {
+    flex: 1; font-family: var(--mono); font-size: 12px;
+    color: var(--text-dim); overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.02em;
+  }
+  .copy-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .clear-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-muted); font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .hint {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-muted); letter-spacing: 0.06em; padding-left: 2px;
+  }
+
+  /* ── Multi panel ────────────────────────────────────────────── */
+  .multi-panel { width: 100%; max-width: 800px; }
+
+  /* ── Ratio panel ────────────────────────────────────────────── */
+  .ratio-panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 14px 20px 16px;
+    margin-bottom: 16px;
+  }
+  .ratio-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .ratio-title {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim);
+  }
+  .ratio-toggle {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-muted); font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 4px 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .ratio-toggle.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .ratio-toggle:hover:not(.on) { border-color: var(--text-dim); color: var(--text); }
+
+  .ratio-inputs-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .ratio-field { display: flex; align-items: center; gap: 6px; }
+  .ratio-dim-label {
+    font-family: var(--sans); font-size: 12px; font-weight: 700;
+    text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em;
+    min-width: 14px;
+  }
+  .ratio-input {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--mono); font-size: 14px;
+    font-weight: 400; width: 72px; padding: 5px 8px; outline: none;
+    transition: border-color 0.12s;
+  }
+  .ratio-input:focus { border-color: var(--accent); }
+  .ratio-input::-webkit-outer-spin-button,
+  .ratio-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .ratio-sep {
+    font-family: var(--mono); font-size: 16px; color: var(--text-muted);
+  }
+  .ratio-computed {
+    margin-top: 10px;
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+    letter-spacing: 0.04em; min-height: 16px;
+  }
+  .ratio-computed span { color: var(--teal); }
+
+  /* ── Dimension blocks ───────────────────────────────────────── */
+  .dimension-block { margin-bottom: 1px; background: var(--border); }
+  .dimension-block:last-of-type { margin-bottom: 20px; }
+
+  .dim-header {
+    background: var(--surface2); padding: 13px 20px;
+    font-family: var(--sans); font-size: 15px; font-weight: 700;
+    letter-spacing: 0.04em; color: var(--text);
+    border-bottom: 1px solid var(--border); text-transform: uppercase;
+  }
+  .dim-inputs {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 1px; background: var(--border);
+  }
+  .dim-cell {
+    background: var(--surface); padding: 14px 16px 12px; transition: background 0.12s;
+  }
+  .dim-cell:focus-within { background: var(--surface2); }
+  .dim-cell:focus-within .dim-unit-label { color: var(--accent); }
+
+  /* Bolder unit labels in multi mode */
+  .dim-unit-label {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-dim); display: block; margin-bottom: 6px; transition: color 0.12s;
+  }
+  .dim-input {
+    width: 100%; background: transparent; border: none; outline: none;
+    font-family: var(--mono); font-size: 16px; font-weight: 300;
+    color: var(--text); caret-color: var(--accent);
+  }
+  .dim-input::placeholder { color: var(--text-muted); }
+  .dim-input::-webkit-outer-spin-button,
+  .dim-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── Multi output ───────────────────────────────────────────── */
+  .multi-output {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 4px 20px; margin-bottom: 10px;
+  }
+  .multi-line {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .multi-line:last-child { border-bottom: none; }
+  .multi-dim-label {
+    font-family: var(--sans); font-size: 13px; font-weight: 700;
+    color: var(--text); min-width: 62px; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .multi-value {
+    font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  }
+  .multi-actions { display: flex; gap: 8px; margin-bottom: 24px; }
+
+  /* ── Volume / Geometry section ──────────────────────────────── */
+  .vol-section {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    margin-bottom: 10px;
+  }
+  .vol-section-header {
+    background: var(--surface3); padding: 11px 20px;
+    font-family: var(--sans); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--orange); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .vol-section-header .vol-sub {
+    font-family: var(--mono); font-size: 10px; font-weight: 400;
+    color: var(--text-muted); letter-spacing: 0.06em; text-transform: none;
+  }
+  .vol-rows { padding: 4px 20px; }
+  .vol-row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+  }
+  .vol-row:last-child { border-bottom: none; }
+  .vol-label {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--orange); min-width: 100px; flex-shrink: 0;
+  }
+  .vol-value {
+    font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  }
+  .vol-actions { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+  /* ── Utilities ──────────────────────────────────────────────── */
+  .hidden { display: none !important; }
+
+  @media (max-width: 560px) {
+    .unit-grid { grid-template-columns: 1fr; }
+    .dim-inputs { grid-template-columns: 1fr 1fr; }
+    .unit-input { font-size: 18px; }
+    .controls-row { flex-direction: column; align-items: flex-start; }
+    .ratio-inputs-row { gap: 6px; }
+    .ratio-input { width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Distance Converter</h1>
+  <span class="sub">ft · mi · m · km</span>
+</div>
+
+<div class="mode-tabs">
+  <button class="tab-btn active" onclick="switchMode('single')">Single</button>
+  <button class="tab-btn" onclick="switchMode('multi')">Length / Width / Height</button>
+</div>
+
+<div class="controls-row">
+  <div class="ctrl-group">
+    <span class="ctrl-label">Decimals</span>
+    <div class="dec-btns">
+      <button class="dec-btn" onclick="setDecimals(0)">0</button>
+      <button class="dec-btn" onclick="setDecimals(1)">1</button>
+      <button class="dec-btn active" onclick="setDecimals(2)">2</button>
+      <button class="dec-btn" onclick="setDecimals(3)">3</button>
+      <button class="dec-btn" onclick="setDecimals(4)">4</button>
+      <button class="dec-btn" onclick="setDecimals(5)">5</button>
+    </div>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Output Order</span>
+    <div class="order-chips" id="orderChips">
+      <div class="order-chip" draggable="true" data-unit="ft">ft</div>
+      <div class="order-chip" draggable="true" data-unit="mi">mi</div>
+      <div class="order-chip" draggable="true" data-unit="m">m</div>
+      <div class="order-chip" draggable="true" data-unit="km">km</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SINGLE MODE ══════════ -->
+<div class="panel" id="singlePanel">
+  <div class="unit-grid">
+    <div class="unit-cell">
+      <span class="unit-label">Feet</span>
+      <input class="unit-input" id="ft" type="number" placeholder="0" oninput="convert('ft')">
+      <span class="unit-abbr">ft</span>
+    </div>
+    <div class="unit-cell">
+      <span class="unit-label">Miles</span>
+      <input class="unit-input" id="mi" type="number" placeholder="0" oninput="convert('mi')">
+      <span class="unit-abbr">mi</span>
+    </div>
+    <div class="unit-cell">
+      <span class="unit-label">Meters</span>
+      <input class="unit-input" id="m" type="number" placeholder="0" oninput="convert('m')">
+      <span class="unit-abbr">m</span>
+    </div>
+    <div class="unit-cell">
+      <span class="unit-label">Kilometers</span>
+      <input class="unit-input" id="km" type="number" placeholder="0" oninput="convert('km')">
+      <span class="unit-abbr">km</span>
+    </div>
+  </div>
+  <div class="copy-bar">
+    <span class="copy-output" id="singleOutput">—</span>
+    <button class="copy-btn" id="copySingleBtn" onclick="copySingle()">Copy</button>
+    <button class="clear-btn" onclick="clearSingle()">Clear</button>
+  </div>
+  <div class="hint" id="orderHint">Output order: feet | miles | meters | kilometers</div>
+</div>
+
+<!-- ══════════ MULTI MODE ══════════ -->
+<div class="multi-panel hidden" id="multiPanel">
+
+  <!-- Ratio Panel -->
+  <div class="ratio-panel">
+    <div class="ratio-top">
+      <span class="ratio-title">Ratio Lock (L : W : H)</span>
+      <button class="ratio-toggle" id="ratioToggle" onclick="toggleRatio()">Off</button>
+    </div>
+    <div class="ratio-inputs-row">
+      <div class="ratio-field">
+        <span class="ratio-dim-label">L</span>
+        <input class="ratio-input" id="ratioL" type="number" value="1" min="0" step="any" oninput="onRatioChange()">
+      </div>
+      <span class="ratio-sep">:</span>
+      <div class="ratio-field">
+        <span class="ratio-dim-label">W</span>
+        <input class="ratio-input" id="ratioW" type="number" value="1" min="0" step="any" oninput="onRatioChange()">
+      </div>
+      <span class="ratio-sep">:</span>
+      <div class="ratio-field">
+        <span class="ratio-dim-label">H</span>
+        <input class="ratio-input" id="ratioH" type="number" value="1" min="0" step="any" oninput="onRatioChange()">
+      </div>
+    </div>
+    <div class="ratio-computed" id="ratioComputed"></div>
+  </div>
+
+  <!-- Length -->
+  <div class="dimension-block">
+    <div class="dim-header">Length</div>
+    <div class="dim-inputs">
+      <div class="dim-cell"><span class="dim-unit-label">Feet</span><input class="dim-input" id="l_ft" type="number" placeholder="0" oninput="convertDim('l','ft')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Miles</span><input class="dim-input" id="l_mi" type="number" placeholder="0" oninput="convertDim('l','mi')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Meters</span><input class="dim-input" id="l_m" type="number" placeholder="0" oninput="convertDim('l','m')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Kilometers</span><input class="dim-input" id="l_km" type="number" placeholder="0" oninput="convertDim('l','km')"></div>
+    </div>
+  </div>
+
+  <!-- Width -->
+  <div class="dimension-block">
+    <div class="dim-header">Width</div>
+    <div class="dim-inputs">
+      <div class="dim-cell"><span class="dim-unit-label">Feet</span><input class="dim-input" id="w_ft" type="number" placeholder="0" oninput="convertDim('w','ft')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Miles</span><input class="dim-input" id="w_mi" type="number" placeholder="0" oninput="convertDim('w','mi')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Meters</span><input class="dim-input" id="w_m" type="number" placeholder="0" oninput="convertDim('w','m')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Kilometers</span><input class="dim-input" id="w_km" type="number" placeholder="0" oninput="convertDim('w','km')"></div>
+    </div>
+  </div>
+
+  <!-- Height -->
+  <div class="dimension-block">
+    <div class="dim-header">Height</div>
+    <div class="dim-inputs">
+      <div class="dim-cell"><span class="dim-unit-label">Feet</span><input class="dim-input" id="h_ft" type="number" placeholder="0" oninput="convertDim('h','ft')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Miles</span><input class="dim-input" id="h_mi" type="number" placeholder="0" oninput="convertDim('h','mi')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Meters</span><input class="dim-input" id="h_m" type="number" placeholder="0" oninput="convertDim('h','m')"></div>
+      <div class="dim-cell"><span class="dim-unit-label">Kilometers</span><input class="dim-input" id="h_km" type="number" placeholder="0" oninput="convertDim('h','km')"></div>
+    </div>
+  </div>
+
+  <!-- L/W/H output -->
+  <div class="multi-output">
+    <div class="multi-line">
+      <span class="multi-dim-label">Length</span>
+      <span class="multi-value" id="lOut">—</span>
+    </div>
+    <div class="multi-line">
+      <span class="multi-dim-label">Width</span>
+      <span class="multi-value" id="wOut">—</span>
+    </div>
+    <div class="multi-line">
+      <span class="multi-dim-label">Height</span>
+      <span class="multi-value" id="hOut">—</span>
+    </div>
+  </div>
+  <div class="multi-actions">
+    <button class="copy-btn" id="copyMultiBtn" onclick="copyMulti()">Copy All</button>
+    <button class="clear-btn" onclick="clearMulti()">Clear All</button>
+  </div>
+
+  <!-- Volume & Geometry section -->
+  <div class="vol-section">
+    <div class="vol-section-header">
+      Volume &amp; Geometry
+      <span class="vol-sub">auto-calculated from L × W × H</span>
+    </div>
+    <div class="vol-rows">
+      <div class="vol-row">
+        <span class="vol-label">Volume</span>
+        <span class="vol-value" id="volValue">—</span>
+      </div>
+      <div class="vol-row">
+        <span class="vol-label">Surface Area</span>
+        <span class="vol-value" id="saValue">—</span>
+      </div>
+      <div class="vol-row">
+        <span class="vol-label">Space Diagonal</span>
+        <span class="vol-value" id="diagValue">—</span>
+      </div>
+    </div>
+    <div class="vol-actions">
+      <button class="copy-btn" id="copyVolBtn" onclick="copyVolume()">Copy Geometry Data</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ═══════════════════════════════════════════════════════════════
+     CONSTANTS
+  ═══════════════════════════════════════════════════════════════ */
+  const TO_M     = { ft: 0.3048, mi: 1609.344, m: 1, km: 1000 };
+  const NAMES    = { ft: 'feet', mi: 'miles', m: 'meters', km: 'kilometers' };
+  const CU_NAMES = { ft: 'cu ft', mi: 'cu mi', m: 'cu m', km: 'cu km' };
+  const SQ_NAMES = { ft: 'sq ft', mi: 'sq mi', m: 'sq m', km: 'sq km' };
+
+  /* ═══════════════════════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════════════════════ */
+  let decimals    = 2;
+  let outputOrder = ['ft','mi','m','km'];
+  let ratioOn     = false;
+
+  // Current base-unit values in meters for each dimension (null = not set)
+  const dimMeters = { l: null, w: null, h: null };
+
+  /* ═══════════════════════════════════════════════════════════════
+     CLIPBOARD
+  ═══════════════════════════════════════════════════════════════ */
+  function copyText(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      return navigator.clipboard.writeText(text).catch(() => { legacyCopy(text); });
+    }
+    legacyCopy(text);
+    return Promise.resolve();
+  }
+  function legacyCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FORMAT
+  ═══════════════════════════════════════════════════════════════ */
+  function fmt(val) {
+    if (!isFinite(val)) return '—';
+    return parseFloat(val.toFixed(decimals)).toLocaleString('en-US', {
+      minimumFractionDigits: 0, maximumFractionDigits: decimals
+    });
+  }
+
+  function metersToVals(m) {
+    return { ft: m/TO_M.ft, mi: m/TO_M.mi, m: m, km: m/TO_M.km };
+  }
+
+  function buildLine(vals) {
+    return outputOrder.map(u => `${fmt(vals[u])} ${NAMES[u]}`).join(' | ');
+  }
+
+  function getOrderLabel() {
+    return outputOrder.map(u => NAMES[u]).join(' | ');
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SINGLE MODE
+  ═══════════════════════════════════════════════════════════════ */
+  function convert(from) {
+    const raw = parseFloat(document.getElementById(from).value);
+    if (isNaN(raw)) { clearSingleOutputs(from); return; }
+    const meters = raw * TO_M[from];
+    const vals = metersToVals(meters);
+    for (const u of ['ft','mi','m','km']) {
+      if (u !== from) document.getElementById(u).value = parseFloat(vals[u].toFixed(decimals+2));
+    }
+    document.getElementById('singleOutput').textContent = buildLine(vals);
+  }
+
+  function clearSingleOutputs(except) {
+    for (const u of ['ft','mi','m','km']) {
+      if (u !== except) document.getElementById(u).value = '';
+    }
+    document.getElementById('singleOutput').textContent = '—';
+  }
+
+  function clearSingle() {
+    for (const u of ['ft','mi','m','km']) document.getElementById(u).value = '';
+    document.getElementById('singleOutput').textContent = '—';
+    resetBtn('copySingleBtn');
+  }
+
+  function copySingle() {
+    const t = document.getElementById('singleOutput').textContent;
+    if (t === '—') return;
+    copyText(t).then(() => flashBtn('copySingleBtn'));
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     MULTI MODE
+  ═══════════════════════════════════════════════════════════════ */
+  const DIM_LABEL = { l: 'Length', w: 'Width', h: 'Height' };
+
+  function fillDim(dim, meters, skipUnit) {
+    dimMeters[dim] = meters;
+    const vals = metersToVals(meters);
+    for (const u of ['ft','mi','m','km']) {
+      if (u === skipUnit) continue;
+      document.getElementById(`${dim}_${u}`).value = parseFloat(vals[u].toFixed(decimals+2));
+    }
+    document.getElementById(`${dim}Out`).textContent = buildLine(vals);
+  }
+
+  function convertDim(dim, from) {
+    const raw = parseFloat(document.getElementById(`${dim}_${from}`).value);
+    if (isNaN(raw)) {
+      dimMeters[dim] = null;
+      clearDimOutputs(dim, from);
+      updateGeometry();
+      updateComputedRatios();
+      return;
+    }
+    const meters = raw * TO_M[from];
+    fillDim(dim, meters, from); // skip the field currently being typed into
+
+    // Ratio propagation
+    if (ratioOn) {
+      const rL = parseFloat(document.getElementById('ratioL').value) || 1;
+      const rW = parseFloat(document.getElementById('ratioW').value) || 1;
+      const rH = parseFloat(document.getElementById('ratioH').value) || 1;
+      const ratioMap = { l: rL, w: rW, h: rH };
+      const base = meters / ratioMap[dim]; // meters per 1 ratio unit
+      for (const other of ['l','w','h']) {
+        if (other === dim) continue;
+        fillDim(other, base * ratioMap[other]);
+      }
+    }
+
+    updateGeometry();
+    updateComputedRatios();
+  }
+
+  function clearDimOutputs(dim, except) {
+    for (const u of ['ft','mi','m','km']) {
+      if (u !== except) document.getElementById(`${dim}_${u}`).value = '';
+    }
+    document.getElementById(`${dim}Out`).textContent = '—';
+  }
+
+  function clearMulti() {
+    for (const dim of ['l','w','h']) {
+      for (const u of ['ft','mi','m','km']) document.getElementById(`${dim}_${u}`).value = '';
+      document.getElementById(`${dim}Out`).textContent = '—';
+      dimMeters[dim] = null;
+    }
+    document.getElementById('volValue').textContent  = '—';
+    document.getElementById('saValue').textContent   = '—';
+    document.getElementById('diagValue').textContent = '—';
+    document.getElementById('ratioComputed').textContent = '';
+    resetBtn('copyMultiBtn'); resetBtn('copyVolBtn');
+  }
+
+  function copyMulti() {
+    const lines = ['l','w','h'].map(dim => {
+      const out = document.getElementById(`${dim}Out`).textContent;
+      return out === '—' ? null : `${DIM_LABEL[dim]}: ${out}`;
+    }).filter(Boolean);
+    if (!lines.length) return;
+    copyText(lines.join('\n')).then(() => flashBtn('copyMultiBtn'));
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     VOLUME & GEOMETRY
+  ═══════════════════════════════════════════════════════════════ */
+  function updateGeometry() {
+    const L = dimMeters.l, W = dimMeters.w, H = dimMeters.h;
+
+    // Volume (needs all three)
+    if (L !== null && W !== null && H !== null) {
+      const volM3 = L * W * H;
+      // Volume in each unit (cube of the unit conversion)
+      const volLine = outputOrder.map(u => {
+        const factor = TO_M[u];
+        const vol = volM3 / (factor * factor * factor);
+        return `${fmt(vol)} ${CU_NAMES[u]}`;
+      }).join(' | ');
+      document.getElementById('volValue').textContent = volLine;
+
+      // Surface area: 2(LW + LH + WH) in m²
+      const saM2 = 2 * (L*W + L*H + W*H);
+      const saLine = outputOrder.map(u => {
+        const f = TO_M[u];
+        const sa = saM2 / (f * f);
+        return `${fmt(sa)} ${SQ_NAMES[u]}`;
+      }).join(' | ');
+      document.getElementById('saValue').textContent = saLine;
+
+      // Space diagonal: √(L²+W²+H²) in meters → all units
+      const diagM = Math.sqrt(L*L + W*W + H*H);
+      const diagVals = metersToVals(diagM);
+      document.getElementById('diagValue').textContent = buildLine(diagVals);
+    } else {
+      // Partial data
+      const anySet = L !== null || W !== null || H !== null;
+      if (!anySet) {
+        document.getElementById('volValue').textContent  = '—';
+        document.getElementById('saValue').textContent   = '—';
+        document.getElementById('diagValue').textContent = '—';
+      } else {
+        const note = 'Needs all three dimensions';
+        if (L === null || W === null || H === null) {
+          document.getElementById('volValue').textContent  = note;
+          document.getElementById('saValue').textContent   = note;
+        }
+        // Diagonal only needs two to be partial, but full needs all three
+        document.getElementById('diagValue').textContent = note;
+      }
+    }
+  }
+
+  function copyVolume() {
+    const vol  = document.getElementById('volValue').textContent;
+    const sa   = document.getElementById('saValue').textContent;
+    const diag = document.getElementById('diagValue').textContent;
+    if (vol === '—' || vol.includes('Needs')) return;
+    const text = `Volume: ${vol}\nSurface Area: ${sa}\nSpace Diagonal: ${diag}`;
+    copyText(text).then(() => flashBtn('copyVolBtn'));
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     RATIO
+  ═══════════════════════════════════════════════════════════════ */
+  let ratioOn_state = false;
+
+  function toggleRatio() {
+    ratioOn_state = !ratioOn_state;
+    ratioOn = ratioOn_state;
+    const btn = document.getElementById('ratioToggle');
+    btn.textContent = ratioOn ? 'On' : 'Off';
+    btn.classList.toggle('on', ratioOn);
+  }
+
+  function onRatioChange() {
+    // If ratio values change while on, re-propagate from whichever dim has a value (prefer L)
+    if (!ratioOn) return;
+    for (const dim of ['l','w','h']) {
+      if (dimMeters[dim] !== null) {
+        convertDim(dim, 'm'); // re-trigger from meters value
+        // But we need to use stored value not input — trigger from the stored meters
+        break;
+      }
+    }
+    // Actually retrigger properly: find which dim field has a value
+    for (const dim of ['l','w','h']) {
+      for (const u of ['ft','mi','m','km']) {
+        const el = document.getElementById(`${dim}_${u}`);
+        if (el.value !== '') { convertDim(dim, u); return; }
+      }
+    }
+  }
+
+  function updateComputedRatios() {
+    const el = document.getElementById('ratioComputed');
+    const L = dimMeters.l, W = dimMeters.w, H = dimMeters.h;
+    if (L === null && W === null && H === null) { el.textContent = ''; return; }
+    // Normalize to L=1 (or first available)
+    const base = L ?? W ?? H;
+    if (base === 0) { el.textContent = ''; return; }
+    const rL = L !== null ? fmt(L/base) : '—';
+    const rW = W !== null ? fmt(W/base) : '—';
+    const rH = H !== null ? fmt(H/base) : '—';
+    el.innerHTML = `Computed ratio: <span>L ${rL} : W ${rW} : H ${rH}</span>`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     REFRESH (after decimal/order change)
+  ═══════════════════════════════════════════════════════════════ */
+  function refreshAll() {
+    // Single
+    for (const u of ['ft','mi','m','km']) {
+      const el = document.getElementById(u);
+      if (el && el.value !== '') { convert(u); break; }
+    }
+    // Multi
+    for (const dim of ['l','w','h']) {
+      if (dimMeters[dim] !== null) {
+        const vals = metersToVals(dimMeters[dim]);
+        for (const u of ['ft','mi','m','km']) {
+          document.getElementById(`${dim}_${u}`).value = parseFloat(vals[u].toFixed(decimals+2));
+        }
+        document.getElementById(`${dim}Out`).textContent = buildLine(vals);
+      }
+    }
+    updateGeometry();
+    updateComputedRatios();
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     DECIMALS
+  ═══════════════════════════════════════════════════════════════ */
+  function setDecimals(n) {
+    decimals = n;
+    document.querySelectorAll('.dec-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+    refreshAll();
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     DRAG-AND-DROP ORDER
+  ═══════════════════════════════════════════════════════════════ */
+  let dragSrc = null;
+
+  function initDrag() {
+    const container = document.getElementById('orderChips');
+    container.addEventListener('dragstart', e => {
+      dragSrc = e.target.closest('.order-chip');
+      if (!dragSrc) return;
+      dragSrc.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain','');
+    });
+    container.addEventListener('dragover', e => {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      const t = e.target.closest('.order-chip');
+      if (t && t !== dragSrc) {
+        document.querySelectorAll('.order-chip').forEach(c => c.classList.remove('drag-over'));
+        t.classList.add('drag-over');
+      }
+    });
+    container.addEventListener('dragleave', e => {
+      const t = e.target.closest('.order-chip');
+      if (t) t.classList.remove('drag-over');
+    });
+    container.addEventListener('drop', e => {
+      e.preventDefault();
+      const t = e.target.closest('.order-chip');
+      if (!t || t === dragSrc) return;
+      const chips = [...container.querySelectorAll('.order-chip')];
+      if (chips.indexOf(dragSrc) < chips.indexOf(t)) container.insertBefore(dragSrc, t.nextSibling);
+      else container.insertBefore(dragSrc, t);
+      outputOrder = [...container.querySelectorAll('.order-chip')].map(c => c.dataset.unit);
+      document.getElementById('orderHint').textContent = 'Output order: ' + getOrderLabel();
+      refreshAll();
+    });
+    container.addEventListener('dragend', () => {
+      document.querySelectorAll('.order-chip').forEach(c => c.classList.remove('dragging','drag-over'));
+      dragSrc = null;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     MODE SWITCH
+  ═══════════════════════════════════════════════════════════════ */
+  function switchMode(mode) {
+    document.getElementById('singlePanel').classList.toggle('hidden', mode !== 'single');
+    document.getElementById('multiPanel').classList.toggle('hidden', mode !== 'multi');
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active',(i===0)===(mode==='single')));
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     BUTTON FLASH
+  ═══════════════════════════════════════════════════════════════ */
+  function flashBtn(id) {
+    const btn = document.getElementById(id);
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+  }
+  function resetBtn(id) { document.getElementById(id).classList.remove('copied'); }
+
+  initDrag();
+</script>
+</body>
+</html>
