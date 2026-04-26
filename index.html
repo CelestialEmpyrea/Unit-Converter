@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Distance Converter</title>
+<!-- Inline SVG favicon: ruler icon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e0e0e'/%3E%3Crect x='4' y='12' width='24' height='8' rx='2' fill='%23e8ff5a'/%3E%3Crect x='7' y='12' width='1.5' height='5' fill='%230e0e0e'/%3E%3Crect x='11' y='12' width='1.5' height='3.5' fill='%230e0e0e'/%3E%3Crect x='15' y='12' width='1.5' height='5' fill='%230e0e0e'/%3E%3Crect x='19' y='12' width='1.5' height='3.5' fill='%230e0e0e'/%3E%3Crect x='23' y='12' width='1.5' height='5' fill='%230e0e0e'/%3E%3C/svg%3E">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -23,25 +25,20 @@
     --danger: #ff5a5a;
     --teal: #5affda;
     --orange: #ffaa5a;
+    --blue: #5ab4ff;
     --mono: 'IBM Plex Mono', monospace;
     --sans: 'IBM Plex Sans', sans-serif;
   }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 16px 80px;
+    background: var(--bg); color: var(--text); font-family: var(--sans);
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 40px 16px 80px;
   }
 
-  /* ── Header ─────────────────────────────────────────────────── */
+  /* ── Header ── */
   .header {
-    width: 100%; max-width: 800px;
-    margin-bottom: 36px;
+    width: 100%; max-width: 820px; margin-bottom: 32px;
     display: flex; align-items: baseline; gap: 16px;
     border-bottom: 1px solid var(--border); padding-bottom: 16px;
   }
@@ -49,70 +46,61 @@
     font-family: var(--mono); font-size: 13px; font-weight: 600;
     letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent);
   }
-  .header .sub {
-    font-family: var(--mono); font-size: 11px;
-    color: var(--text-muted); letter-spacing: 0.08em;
-  }
+  .header .sub { font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
 
-  /* ── Tabs ───────────────────────────────────────────────────── */
+  /* ── Tabs ── */
   .mode-tabs {
-    width: 100%; max-width: 800px;
-    display: flex; margin-bottom: 22px;
-    border: 1px solid var(--border);
+    width: 100%; max-width: 820px; display: flex;
+    margin-bottom: 20px; border: 1px solid var(--border);
   }
   .tab-btn {
     flex: 1; background: transparent; border: none;
-    border-right: 1px solid var(--border);
-    color: var(--text-dim); font-family: var(--mono);
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    padding: 10px 16px; cursor: pointer; transition: all 0.15s;
+    border-right: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all 0.15s;
   }
   .tab-btn:last-child { border-right: none; }
   .tab-btn.active { background: var(--accent); color: #0e0e0e; font-weight: 600; }
   .tab-btn:not(.active):hover { background: var(--surface2); color: var(--text); }
 
-  /* ── Controls row ───────────────────────────────────────────── */
+  /* ── Controls row ── */
   .controls-row {
-    width: 100%; max-width: 800px;
-    display: flex; align-items: center;
-    justify-content: space-between;
-    gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+    width: 100%; max-width: 820px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px; flex-wrap: wrap;
   }
-  .ctrl-group { display: flex; align-items: center; gap: 10px; }
-  .ctrl-label {
-    font-family: var(--mono); font-size: 11px;
-    color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;
-  }
+  .ctrl-group { display: flex; align-items: center; gap: 8px; }
+  .ctrl-label { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 
-  .dec-btns { display: flex; border: 1px solid var(--border); }
-  .dec-btn {
-    background: transparent; border: none;
-    border-right: 1px solid var(--border);
+  /* Segment button groups */
+  .seg-btns { display: flex; border: 1px solid var(--border); }
+  .seg-btn {
+    background: transparent; border: none; border-right: 1px solid var(--border);
     color: var(--text-dim); font-family: var(--mono); font-size: 11px;
-    width: 30px; height: 28px; cursor: pointer; transition: all 0.12s;
+    padding: 0 10px; height: 28px; cursor: pointer; transition: all 0.12s; white-space: nowrap;
   }
-  .dec-btn:last-child { border-right: none; }
-  .dec-btn.active { background: var(--surface2); color: var(--accent); font-weight: 600; }
-  .dec-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
+  .seg-btn:last-child { border-right: none; }
+  .seg-btn.active { background: var(--surface2); color: var(--accent); font-weight: 600; }
+  .seg-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
 
-  .order-chips { display: flex; gap: 4px; align-items: center; }
+  .order-chips { display: flex; gap: 4px; }
   .order-chip {
     background: var(--surface); border: 1px solid var(--border);
-    color: var(--text-dim); font-family: var(--mono);
-    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-dim); font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
     padding: 4px 10px; cursor: grab; user-select: none; transition: all 0.12s;
   }
   .order-chip:active { cursor: grabbing; }
   .order-chip.drag-over { border-color: var(--accent); color: var(--accent); }
   .order-chip.dragging { opacity: 0.3; }
 
-  /* ── Single panel ───────────────────────────────────────────── */
-  .panel { width: 100%; max-width: 800px; }
+  /* ── Single panel ── */
+  .panel { width: 100%; max-width: 820px; }
 
   .unit-grid {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 1px; background: var(--border);
-    border: 1px solid var(--border); margin-bottom: 16px;
+    border: 1px solid var(--border); margin-bottom: 14px;
   }
   .unit-cell {
     background: var(--surface); padding: 18px 20px 14px;
@@ -120,8 +108,6 @@
   }
   .unit-cell:focus-within { background: var(--surface2); }
   .unit-cell:focus-within .unit-label { color: var(--accent); }
-
-  /* Bolder unit labels in single mode */
   .unit-label {
     font-family: var(--mono); font-size: 11px; font-weight: 600;
     letter-spacing: 0.14em; text-transform: uppercase;
@@ -133,122 +119,85 @@
     color: var(--text); caret-color: var(--accent);
   }
   .unit-input::placeholder { color: var(--text-muted); }
-  .unit-input::-webkit-outer-spin-button,
-  .unit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .unit-input::-webkit-outer-spin-button, .unit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .unit-abbr {
     position: absolute; right: 20px; bottom: 16px;
-    font-family: var(--mono); font-size: 11px;
-    color: var(--text-muted); letter-spacing: 0.08em;
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em;
   }
 
-  /* ── Copy bar ───────────────────────────────────────────────── */
+  /* ── Copy / action bar ── */
   .copy-bar {
     background: var(--surface); border: 1px solid var(--border);
-    padding: 14px 16px; display: flex; align-items: center;
-    gap: 10px; margin-bottom: 6px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
   }
   .copy-output {
-    flex: 1; font-family: var(--mono); font-size: 12px;
-    color: var(--text-dim); overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.02em;
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.02em;
   }
   .copy-btn {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text-dim); font-family: var(--mono);
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    padding: 6px 14px; cursor: pointer; transition: all 0.15s;
-    white-space: nowrap; flex-shrink: 0;
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
   }
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .save-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .save-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .save-btn.saved { border-color: var(--blue); color: var(--blue); background: rgba(90,180,255,0.08); }
   .clear-btn {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text-muted); font-family: var(--mono);
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
   .clear-btn:hover { border-color: var(--danger); color: var(--danger); }
-  .hint {
-    font-family: var(--mono); font-size: 10px;
-    color: var(--text-muted); letter-spacing: 0.06em; padding-left: 2px;
-  }
+  .hint { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.06em; padding-left: 2px; }
 
-  /* ── Multi panel ────────────────────────────────────────────── */
-  .multi-panel { width: 100%; max-width: 800px; }
+  /* ── Multi panel ── */
+  .multi-panel { width: 100%; max-width: 820px; }
 
-  /* ── Ratio panel ────────────────────────────────────────────── */
+  /* ── Ratio ── */
   .ratio-panel {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    padding: 14px 20px 16px;
-    margin-bottom: 16px;
+    border: 1px solid var(--border); background: var(--surface);
+    padding: 13px 18px 15px; margin-bottom: 14px;
   }
-  .ratio-top {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .ratio-title {
-    font-family: var(--mono); font-size: 11px; font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim);
-  }
+  .ratio-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ratio-title { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
   .ratio-toggle {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text-muted); font-family: var(--mono);
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
     padding: 4px 12px; cursor: pointer; transition: all 0.15s;
   }
   .ratio-toggle.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
   .ratio-toggle:hover:not(.on) { border-color: var(--text-dim); color: var(--text); }
-
-  .ratio-inputs-row {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  }
+  .ratio-inputs-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .ratio-field { display: flex; align-items: center; gap: 6px; }
-  .ratio-dim-label {
-    font-family: var(--sans); font-size: 12px; font-weight: 700;
-    text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em;
-    min-width: 14px;
-  }
+  .ratio-dim-label { font-family: var(--sans); font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em; min-width: 14px; }
   .ratio-input {
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); font-family: var(--mono); font-size: 14px;
-    font-weight: 400; width: 72px; padding: 5px 8px; outline: none;
-    transition: border-color 0.12s;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--mono); font-size: 14px; width: 72px; padding: 5px 8px; outline: none; transition: border-color 0.12s;
   }
   .ratio-input:focus { border-color: var(--accent); }
-  .ratio-input::-webkit-outer-spin-button,
-  .ratio-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .ratio-sep {
-    font-family: var(--mono); font-size: 16px; color: var(--text-muted);
-  }
-  .ratio-computed {
-    margin-top: 10px;
-    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
-    letter-spacing: 0.04em; min-height: 16px;
-  }
+  .ratio-input::-webkit-outer-spin-button, .ratio-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .ratio-sep { font-family: var(--mono); font-size: 16px; color: var(--text-muted); }
+  .ratio-computed { margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--text-muted); min-height: 16px; }
   .ratio-computed span { color: var(--teal); }
 
-  /* ── Dimension blocks ───────────────────────────────────────── */
+  /* ── Dimension blocks ── */
   .dimension-block { margin-bottom: 1px; background: var(--border); }
-  .dimension-block:last-of-type { margin-bottom: 20px; }
-
+  .dimension-block:last-of-type { margin-bottom: 18px; }
   .dim-header {
-    background: var(--surface2); padding: 13px 20px;
+    background: var(--surface2); padding: 12px 18px;
     font-family: var(--sans); font-size: 15px; font-weight: 700;
-    letter-spacing: 0.04em; color: var(--text);
-    border-bottom: 1px solid var(--border); text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--text); border-bottom: 1px solid var(--border); text-transform: uppercase;
   }
-  .dim-inputs {
-    display: grid; grid-template-columns: repeat(4,1fr);
-    gap: 1px; background: var(--border);
-  }
-  .dim-cell {
-    background: var(--surface); padding: 14px 16px 12px; transition: background 0.12s;
-  }
+  .dim-inputs { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); }
+  .dim-cell { background: var(--surface); padding: 13px 14px 11px; transition: background 0.12s; }
   .dim-cell:focus-within { background: var(--surface2); }
   .dim-cell:focus-within .dim-unit-label { color: var(--accent); }
-
-  /* Bolder unit labels in multi mode */
   .dim-unit-label {
     font-family: var(--mono); font-size: 10px; font-weight: 600;
     letter-spacing: 0.14em; text-transform: uppercase;
@@ -260,62 +209,91 @@
     color: var(--text); caret-color: var(--accent);
   }
   .dim-input::placeholder { color: var(--text-muted); }
-  .dim-input::-webkit-outer-spin-button,
-  .dim-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .dim-input::-webkit-outer-spin-button, .dim-input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-  /* ── Multi output ───────────────────────────────────────────── */
-  .multi-output {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 4px 20px; margin-bottom: 10px;
-  }
+  /* ── Multi output with per-row copy ── */
+  .multi-output { background: var(--surface); border: 1px solid var(--border); padding: 2px 18px; margin-bottom: 8px; }
   .multi-line {
-    display: flex; align-items: baseline; gap: 12px;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
   }
   .multi-line:last-child { border-bottom: none; }
   .multi-dim-label {
     font-family: var(--sans); font-size: 13px; font-weight: 700;
-    color: var(--text); min-width: 62px; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text); min-width: 62px; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0;
   }
-  .multi-value {
-    font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  .multi-value { font-family: var(--mono); font-size: 12px; color: var(--text-dim); flex: 1; }
+  .row-copy-btn {
+    background: transparent; border: 1px solid transparent; color: var(--text-muted);
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 8px; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
   }
-  .multi-actions { display: flex; gap: 8px; margin-bottom: 24px; }
+  .row-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .row-copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+  .multi-actions { display: flex; gap: 8px; margin-bottom: 20px; }
 
-  /* ── Volume / Geometry section ──────────────────────────────── */
-  .vol-section {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    margin-bottom: 10px;
-  }
+  /* ── Volume / Geometry ── */
+  .vol-section { border: 1px solid var(--border); background: var(--surface); margin-bottom: 10px; }
   .vol-section-header {
-    background: var(--surface3); padding: 11px 20px;
+    background: var(--surface3); padding: 10px 18px;
     font-family: var(--sans); font-size: 13px; font-weight: 700;
     letter-spacing: 0.05em; text-transform: uppercase;
     color: var(--orange); border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
-  .vol-section-header .vol-sub {
-    font-family: var(--mono); font-size: 10px; font-weight: 400;
-    color: var(--text-muted); letter-spacing: 0.06em; text-transform: none;
-  }
-  .vol-rows { padding: 4px 20px; }
+  .vol-sub { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--text-muted); letter-spacing: 0.06em; text-transform: none; }
+  .vol-rows { padding: 2px 18px; }
   .vol-row {
-    display: flex; align-items: baseline; gap: 12px;
+    display: flex; align-items: center; gap: 10px;
     padding: 9px 0; border-bottom: 1px solid var(--border);
   }
   .vol-row:last-child { border-bottom: none; }
   .vol-label {
     font-family: var(--mono); font-size: 10px; font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--orange); min-width: 100px; flex-shrink: 0;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange); min-width: 100px; flex-shrink: 0;
   }
-  .vol-value {
-    font-family: var(--mono); font-size: 12px; color: var(--text-dim);
-  }
-  .vol-actions { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .vol-value { font-family: var(--mono); font-size: 12px; color: var(--text-dim); flex: 1; }
+  .vol-actions { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ── Utilities ──────────────────────────────────────────────── */
+  /* ── History section ── */
+  .history-section { border: 1px solid var(--border); background: var(--surface); margin-bottom: 10px; }
+  .history-header {
+    background: var(--surface3); padding: 10px 18px;
+    font-family: var(--sans); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase; color: var(--blue);
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+  }
+  .history-count { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--text-muted); }
+  .history-list { max-height: 240px; overflow-y: auto; }
+  .history-list::-webkit-scrollbar { width: 4px; }
+  .history-list::-webkit-scrollbar-track { background: var(--surface); }
+  .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .history-empty { padding: 20px 18px; font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-align: center; }
+  .history-item {
+    padding: 10px 18px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item-meta { flex-shrink: 0; }
+  .history-ts { font-family: var(--mono); font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px; }
+  .history-type { font-family: var(--mono); font-size: 9px; color: var(--blue); letter-spacing: 0.08em; text-transform: uppercase; }
+  .history-item-body { flex: 1; min-width: 0; }
+  .history-line { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-line:last-child { margin-bottom: 0; }
+  .history-item-actions { flex-shrink: 0; display: flex; gap: 4px; }
+  .history-actions { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .export-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .export-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .del-btn {
+    background: transparent; border: 1px solid transparent; color: var(--text-muted);
+    font-family: var(--mono); font-size: 9px; padding: 2px 6px; cursor: pointer; transition: all 0.12s;
+  }
+  .del-btn:hover { color: var(--danger); border-color: var(--danger); }
+
   .hidden { display: none !important; }
 
   @media (max-width: 560px) {
@@ -340,20 +318,29 @@
   <button class="tab-btn" onclick="switchMode('multi')">Length / Width / Height</button>
 </div>
 
+<!-- Controls -->
 <div class="controls-row">
   <div class="ctrl-group">
     <span class="ctrl-label">Decimals</span>
-    <div class="dec-btns">
-      <button class="dec-btn" onclick="setDecimals(0)">0</button>
-      <button class="dec-btn" onclick="setDecimals(1)">1</button>
-      <button class="dec-btn active" onclick="setDecimals(2)">2</button>
-      <button class="dec-btn" onclick="setDecimals(3)">3</button>
-      <button class="dec-btn" onclick="setDecimals(4)">4</button>
-      <button class="dec-btn" onclick="setDecimals(5)">5</button>
+    <div class="seg-btns">
+      <button class="seg-btn" onclick="setDecimals(0)">0</button>
+      <button class="seg-btn" onclick="setDecimals(1)">1</button>
+      <button class="seg-btn active" onclick="setDecimals(2)">2</button>
+      <button class="seg-btn" onclick="setDecimals(3)">3</button>
+      <button class="seg-btn" onclick="setDecimals(4)">4</button>
+      <button class="seg-btn" onclick="setDecimals(5)">5</button>
     </div>
   </div>
   <div class="ctrl-group">
-    <span class="ctrl-label">Output Order</span>
+    <span class="ctrl-label">Notation</span>
+    <div class="seg-btns">
+      <button class="seg-btn" onclick="setNotation('name')">Name</button>
+      <button class="seg-btn active" onclick="setNotation('both')">Both</button>
+      <button class="seg-btn" onclick="setNotation('symbol')">Symbol</button>
+    </div>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Order</span>
     <div class="order-chips" id="orderChips">
       <div class="order-chip" draggable="true" data-unit="ft">ft</div>
       <div class="order-chip" draggable="true" data-unit="mi">mi</div>
@@ -363,7 +350,7 @@
   </div>
 </div>
 
-<!-- ══════════ SINGLE MODE ══════════ -->
+<!-- ══ SINGLE MODE ══ -->
 <div class="panel" id="singlePanel">
   <div class="unit-grid">
     <div class="unit-cell">
@@ -390,15 +377,30 @@
   <div class="copy-bar">
     <span class="copy-output" id="singleOutput">—</span>
     <button class="copy-btn" id="copySingleBtn" onclick="copySingle()">Copy</button>
+    <button class="save-btn" id="saveSingleBtn" onclick="saveSingle()">Save</button>
     <button class="clear-btn" onclick="clearSingle()">Clear</button>
   </div>
   <div class="hint" id="orderHint">Output order: feet | miles | meters | kilometers</div>
+
+  <!-- Single History -->
+  <div class="history-section" style="margin-top:18px;">
+    <div class="history-header">
+      History
+      <span class="history-count" id="singleHistCount">0 entries</span>
+    </div>
+    <div class="history-list" id="singleHistList">
+      <div class="history-empty">No saves yet. Hit Save after a conversion.</div>
+    </div>
+    <div class="history-actions">
+      <button class="export-btn" onclick="exportCSV('single')">Download CSV</button>
+      <button class="clear-btn" onclick="clearHistory('single')">Clear History</button>
+    </div>
+  </div>
 </div>
 
-<!-- ══════════ MULTI MODE ══════════ -->
+<!-- ══ MULTI MODE ══ -->
 <div class="multi-panel hidden" id="multiPanel">
 
-  <!-- Ratio Panel -->
   <div class="ratio-panel">
     <div class="ratio-top">
       <span class="ratio-title">Ratio Lock (L : W : H)</span>
@@ -423,7 +425,6 @@
     <div class="ratio-computed" id="ratioComputed"></div>
   </div>
 
-  <!-- Length -->
   <div class="dimension-block">
     <div class="dim-header">Length</div>
     <div class="dim-inputs">
@@ -433,8 +434,6 @@
       <div class="dim-cell"><span class="dim-unit-label">Kilometers</span><input class="dim-input" id="l_km" type="number" placeholder="0" oninput="convertDim('l','km')"></div>
     </div>
   </div>
-
-  <!-- Width -->
   <div class="dimension-block">
     <div class="dim-header">Width</div>
     <div class="dim-inputs">
@@ -444,8 +443,6 @@
       <div class="dim-cell"><span class="dim-unit-label">Kilometers</span><input class="dim-input" id="w_km" type="number" placeholder="0" oninput="convertDim('w','km')"></div>
     </div>
   </div>
-
-  <!-- Height -->
   <div class="dimension-block">
     <div class="dim-header">Height</div>
     <div class="dim-inputs">
@@ -456,27 +453,31 @@
     </div>
   </div>
 
-  <!-- L/W/H output -->
+  <!-- L/W/H output with per-row copy -->
   <div class="multi-output">
     <div class="multi-line">
       <span class="multi-dim-label">Length</span>
       <span class="multi-value" id="lOut">—</span>
+      <button class="row-copy-btn" onclick="copyDimRow('l','lOut','copyL')">Copy</button>
     </div>
     <div class="multi-line">
       <span class="multi-dim-label">Width</span>
       <span class="multi-value" id="wOut">—</span>
+      <button class="row-copy-btn" onclick="copyDimRow('w','wOut','copyW')">Copy</button>
     </div>
     <div class="multi-line">
       <span class="multi-dim-label">Height</span>
       <span class="multi-value" id="hOut">—</span>
+      <button class="row-copy-btn" onclick="copyDimRow('h','hOut','copyH')">Copy</button>
     </div>
   </div>
   <div class="multi-actions">
     <button class="copy-btn" id="copyMultiBtn" onclick="copyMulti()">Copy All</button>
+    <button class="save-btn" id="saveMultiBtn" onclick="saveMulti()">Save</button>
     <button class="clear-btn" onclick="clearMulti()">Clear All</button>
   </div>
 
-  <!-- Volume & Geometry section -->
+  <!-- Volume & Geometry -->
   <div class="vol-section">
     <div class="vol-section-header">
       Volume &amp; Geometry
@@ -486,390 +487,544 @@
       <div class="vol-row">
         <span class="vol-label">Volume</span>
         <span class="vol-value" id="volValue">—</span>
+        <button class="row-copy-btn" onclick="copyGeoRow('volValue','Volume')">Copy</button>
       </div>
       <div class="vol-row">
         <span class="vol-label">Surface Area</span>
         <span class="vol-value" id="saValue">—</span>
+        <button class="row-copy-btn" onclick="copyGeoRow('saValue','Surface Area')">Copy</button>
       </div>
       <div class="vol-row">
         <span class="vol-label">Space Diagonal</span>
         <span class="vol-value" id="diagValue">—</span>
+        <button class="row-copy-btn" onclick="copyGeoRow('diagValue','Space Diagonal')">Copy</button>
       </div>
     </div>
     <div class="vol-actions">
-      <button class="copy-btn" id="copyVolBtn" onclick="copyVolume()">Copy Geometry Data</button>
+      <button class="copy-btn" id="copyVolBtn" onclick="copyVolume()">Copy All Geometry</button>
+    </div>
+  </div>
+
+  <!-- Multi History -->
+  <div class="history-section">
+    <div class="history-header">
+      History
+      <span class="history-count" id="multiHistCount">0 entries</span>
+    </div>
+    <div class="history-list" id="multiHistList">
+      <div class="history-empty">No saves yet. Hit Save after filling dimensions.</div>
+    </div>
+    <div class="history-actions">
+      <button class="export-btn" onclick="exportCSV('multi')">Download CSV</button>
+      <button class="clear-btn" onclick="clearHistory('multi')">Clear History</button>
     </div>
   </div>
 
 </div>
 
 <script>
-  /* ═══════════════════════════════════════════════════════════════
-     CONSTANTS
-  ═══════════════════════════════════════════════════════════════ */
-  const TO_M     = { ft: 0.3048, mi: 1609.344, m: 1, km: 1000 };
-  const NAMES    = { ft: 'feet', mi: 'miles', m: 'meters', km: 'kilometers' };
-  const CU_NAMES = { ft: 'cu ft', mi: 'cu mi', m: 'cu m', km: 'cu km' };
-  const SQ_NAMES = { ft: 'sq ft', mi: 'sq mi', m: 'sq m', km: 'sq km' };
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const TO_M = { ft: 0.3048, mi: 1609.344, m: 1, km: 1000 };
+const NAMES = { ft: 'feet', mi: 'miles', m: 'meters', km: 'kilometers' };
+const SQ_NAME   = { ft: 'sq ft',  mi: 'sq mi',  m: 'sq m',  km: 'sq km'  };
+const CU_NAME   = { ft: 'cu ft',  mi: 'cu mi',  m: 'cu m',  km: 'cu km'  };
+const SQ_SYM    = { ft: 'ft²',    mi: 'mi²',    m: 'm²',    km: 'km²'    };
+const CU_SYM    = { ft: 'ft³',    mi: 'mi³',    m: 'm³',    km: 'km³'    };
 
-  /* ═══════════════════════════════════════════════════════════════
-     STATE
-  ═══════════════════════════════════════════════════════════════ */
-  let decimals    = 2;
-  let outputOrder = ['ft','mi','m','km'];
-  let ratioOn     = false;
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let decimals      = 2;
+let outputOrder   = ['ft','mi','m','km'];
+let notationMode  = 'both';   // 'name' | 'both' | 'symbol'
+let ratioOn       = false;
+const dimMeters   = { l: null, w: null, h: null };
+const singleHistory = [];   // { ts, meters }
+const multiHistory  = [];   // { ts, l, w, h (in meters) }
 
-  // Current base-unit values in meters for each dimension (null = not set)
-  const dimMeters = { l: null, w: null, h: null };
+/* ═══════════════════════════════════════════
+   UNIT LABEL BUILDERS
+═══════════════════════════════════════════ */
+function sqLabel(u) {
+  if (notationMode === 'name')   return SQ_NAME[u];
+  if (notationMode === 'symbol') return SQ_SYM[u];
+  return `${SQ_NAME[u]} (${SQ_SYM[u]})`;
+}
+function cuLabel(u) {
+  if (notationMode === 'name')   return CU_NAME[u];
+  if (notationMode === 'symbol') return CU_SYM[u];
+  return `${CU_NAME[u]} (${CU_SYM[u]})`;
+}
 
-  /* ═══════════════════════════════════════════════════════════════
-     CLIPBOARD
-  ═══════════════════════════════════════════════════════════════ */
-  function copyText(text) {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      return navigator.clipboard.writeText(text).catch(() => { legacyCopy(text); });
+/* ═══════════════════════════════════════════
+   CLIPBOARD
+═══════════════════════════════════════════ */
+function copyText(text) {
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    return navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+  }
+  legacyCopy(text);
+  return Promise.resolve();
+}
+function legacyCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+/* ═══════════════════════════════════════════
+   FORMAT
+═══════════════════════════════════════════ */
+function fmt(val) {
+  if (!isFinite(val)) return '—';
+  return parseFloat(val.toFixed(decimals)).toLocaleString('en-US', {
+    minimumFractionDigits: 0, maximumFractionDigits: decimals
+  });
+}
+function metersToVals(m) {
+  return { ft: m/TO_M.ft, mi: m/TO_M.mi, m, km: m/TO_M.km };
+}
+function buildLine(vals) {
+  return outputOrder.map(u => `${fmt(vals[u])} ${NAMES[u]}`).join(' | ');
+}
+function getOrderLabel() {
+  return outputOrder.map(u => NAMES[u]).join(' | ');
+}
+
+/* ═══════════════════════════════════════════
+   SINGLE MODE
+═══════════════════════════════════════════ */
+function convert(from) {
+  const raw = parseFloat(document.getElementById(from).value);
+  if (isNaN(raw)) { clearSingleOutputs(from); return; }
+  const meters = raw * TO_M[from];
+  const vals = metersToVals(meters);
+  for (const u of ['ft','mi','m','km']) {
+    if (u !== from) document.getElementById(u).value = parseFloat(vals[u].toFixed(decimals+2));
+  }
+  document.getElementById('singleOutput').textContent = buildLine(vals);
+}
+function clearSingleOutputs(except) {
+  for (const u of ['ft','mi','m','km']) {
+    if (u !== except) document.getElementById(u).value = '';
+  }
+  document.getElementById('singleOutput').textContent = '—';
+}
+function clearSingle() {
+  for (const u of ['ft','mi','m','km']) document.getElementById(u).value = '';
+  document.getElementById('singleOutput').textContent = '—';
+  resetBtn('copySingleBtn'); resetBtn('saveSingleBtn');
+}
+function copySingle() {
+  const t = document.getElementById('singleOutput').textContent;
+  if (t === '—') return;
+  copyText(t).then(() => flashBtn('copySingleBtn'));
+}
+function saveSingle() {
+  const t = document.getElementById('singleOutput').textContent;
+  if (t === '—') return;
+  // Find current meters value
+  let meters = null;
+  for (const u of ['ft','mi','m','km']) {
+    const v = parseFloat(document.getElementById(u).value);
+    if (!isNaN(v)) { meters = v * TO_M[u]; break; }
+  }
+  if (meters === null) return;
+  singleHistory.unshift({ ts: new Date(), meters });
+  renderHistory('single');
+  flashBtn('saveSingleBtn');
+}
+
+/* ═══════════════════════════════════════════
+   MULTI MODE
+═══════════════════════════════════════════ */
+const DIM_LABEL = { l: 'Length', w: 'Width', h: 'Height' };
+
+function fillDim(dim, meters, skipUnit) {
+  dimMeters[dim] = meters;
+  const vals = metersToVals(meters);
+  for (const u of ['ft','mi','m','km']) {
+    if (u === skipUnit) continue;
+    document.getElementById(`${dim}_${u}`).value = parseFloat(vals[u].toFixed(decimals+2));
+  }
+  document.getElementById(`${dim}Out`).textContent = buildLine(vals);
+}
+function convertDim(dim, from) {
+  const raw = parseFloat(document.getElementById(`${dim}_${from}`).value);
+  if (isNaN(raw)) {
+    dimMeters[dim] = null;
+    clearDimOutputs(dim, from);
+    updateGeometry(); updateComputedRatios(); return;
+  }
+  const meters = raw * TO_M[from];
+  fillDim(dim, meters, from);
+  if (ratioOn) {
+    const rL = parseFloat(document.getElementById('ratioL').value) || 1;
+    const rW = parseFloat(document.getElementById('ratioW').value) || 1;
+    const rH = parseFloat(document.getElementById('ratioH').value) || 1;
+    const rm = { l: rL, w: rW, h: rH };
+    const base = meters / rm[dim];
+    for (const other of ['l','w','h']) {
+      if (other !== dim) fillDim(other, base * rm[other]);
     }
-    legacyCopy(text);
-    return Promise.resolve();
   }
-  function legacyCopy(text) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    try { document.execCommand('copy'); } catch(e) {}
-    document.body.removeChild(ta);
+  updateGeometry(); updateComputedRatios();
+}
+function clearDimOutputs(dim, except) {
+  for (const u of ['ft','mi','m','km']) {
+    if (u !== except) document.getElementById(`${dim}_${u}`).value = '';
   }
+  document.getElementById(`${dim}Out`).textContent = '—';
+}
+function clearMulti() {
+  for (const dim of ['l','w','h']) {
+    for (const u of ['ft','mi','m','km']) document.getElementById(`${dim}_${u}`).value = '';
+    document.getElementById(`${dim}Out`).textContent = '—';
+    dimMeters[dim] = null;
+  }
+  ['volValue','saValue','diagValue'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('ratioComputed').textContent = '';
+  resetBtn('copyMultiBtn'); resetBtn('copyVolBtn'); resetBtn('saveMultiBtn');
+}
+function copyMulti() {
+  const lines = ['l','w','h'].map(dim => {
+    const out = document.getElementById(`${dim}Out`).textContent;
+    return out === '—' ? null : `${DIM_LABEL[dim]}: ${out}`;
+  }).filter(Boolean);
+  if (!lines.length) return;
+  copyText(lines.join('\n')).then(() => flashBtn('copyMultiBtn'));
+}
+function copyDimRow(dim, outId, btnId) {
+  const t = document.getElementById(outId).textContent;
+  if (t === '—') return;
+  copyText(`${DIM_LABEL[dim]}: ${t}`).then(() => {
+    // flash just that button — locate it via sibling
+    const btn = document.querySelector(`[onclick="copyDimRow('${dim}','${outId}','${btnId}')"]`);
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = '✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  });
+}
+function saveMulti() {
+  if (dimMeters.l === null && dimMeters.w === null && dimMeters.h === null) return;
+  multiHistory.unshift({ ts: new Date(), l: dimMeters.l, w: dimMeters.w, h: dimMeters.h });
+  renderHistory('multi');
+  flashBtn('saveMultiBtn');
+}
 
-  /* ═══════════════════════════════════════════════════════════════
-     FORMAT
-  ═══════════════════════════════════════════════════════════════ */
-  function fmt(val) {
-    if (!isFinite(val)) return '—';
-    return parseFloat(val.toFixed(decimals)).toLocaleString('en-US', {
-      minimumFractionDigits: 0, maximumFractionDigits: decimals
-    });
+/* ═══════════════════════════════════════════
+   GEOMETRY
+═══════════════════════════════════════════ */
+function buildVolLine(volM3) {
+  return outputOrder.map(u => {
+    const f = TO_M[u];
+    return `${fmt(volM3 / (f*f*f))} ${cuLabel(u)}`;
+  }).join(' | ');
+}
+function buildSaLine(saM2) {
+  return outputOrder.map(u => {
+    const f = TO_M[u];
+    return `${fmt(saM2 / (f*f))} ${sqLabel(u)}`;
+  }).join(' | ');
+}
+function updateGeometry() {
+  const L = dimMeters.l, W = dimMeters.w, H = dimMeters.h;
+  if (L !== null && W !== null && H !== null) {
+    document.getElementById('volValue').textContent  = buildVolLine(L*W*H);
+    document.getElementById('saValue').textContent   = buildSaLine(2*(L*W + L*H + W*H));
+    document.getElementById('diagValue').textContent = buildLine(metersToVals(Math.sqrt(L*L+W*W+H*H)));
+  } else {
+    const note = (L !== null || W !== null || H !== null) ? 'Needs all three dimensions' : '—';
+    ['volValue','saValue','diagValue'].forEach(id => document.getElementById(id).textContent = note);
   }
+}
+function copyGeoRow(valueId, label) {
+  const t = document.getElementById(valueId).textContent;
+  if (t === '—' || t.includes('Needs')) return;
+  copyText(`${label}: ${t}`).then(() => {
+    const btn = document.querySelector(`[onclick="copyGeoRow('${valueId}','${label}')"]`);
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = '✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  });
+}
+function copyVolume() {
+  const vol  = document.getElementById('volValue').textContent;
+  const sa   = document.getElementById('saValue').textContent;
+  const diag = document.getElementById('diagValue').textContent;
+  if (vol === '—' || vol.includes('Needs')) return;
+  copyText(`Volume: ${vol}\nSurface Area: ${sa}\nSpace Diagonal: ${diag}`).then(() => flashBtn('copyVolBtn'));
+}
 
-  function metersToVals(m) {
-    return { ft: m/TO_M.ft, mi: m/TO_M.mi, m: m, km: m/TO_M.km };
-  }
-
-  function buildLine(vals) {
-    return outputOrder.map(u => `${fmt(vals[u])} ${NAMES[u]}`).join(' | ');
-  }
-
-  function getOrderLabel() {
-    return outputOrder.map(u => NAMES[u]).join(' | ');
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     SINGLE MODE
-  ═══════════════════════════════════════════════════════════════ */
-  function convert(from) {
-    const raw = parseFloat(document.getElementById(from).value);
-    if (isNaN(raw)) { clearSingleOutputs(from); return; }
-    const meters = raw * TO_M[from];
-    const vals = metersToVals(meters);
+/* ═══════════════════════════════════════════
+   RATIO
+═══════════════════════════════════════════ */
+function toggleRatio() {
+  ratioOn = !ratioOn;
+  const btn = document.getElementById('ratioToggle');
+  btn.textContent = ratioOn ? 'On' : 'Off';
+  btn.classList.toggle('on', ratioOn);
+}
+function onRatioChange() {
+  if (!ratioOn) return;
+  for (const dim of ['l','w','h']) {
     for (const u of ['ft','mi','m','km']) {
-      if (u !== from) document.getElementById(u).value = parseFloat(vals[u].toFixed(decimals+2));
+      const el = document.getElementById(`${dim}_${u}`);
+      if (el.value !== '') { convertDim(dim, u); return; }
     }
-    document.getElementById('singleOutput').textContent = buildLine(vals);
   }
+}
+function updateComputedRatios() {
+  const el = document.getElementById('ratioComputed');
+  const L = dimMeters.l, W = dimMeters.w, H = dimMeters.h;
+  if (L === null && W === null && H === null) { el.textContent = ''; return; }
+  const base = L ?? W ?? H;
+  if (!base) { el.textContent = ''; return; }
+  const rL = L !== null ? fmt(L/base) : '—';
+  const rW = W !== null ? fmt(W/base) : '—';
+  const rH = H !== null ? fmt(H/base) : '—';
+  el.innerHTML = `Computed ratio: <span>L ${rL} : W ${rW} : H ${rH}</span>`;
+}
 
-  function clearSingleOutputs(except) {
-    for (const u of ['ft','mi','m','km']) {
-      if (u !== except) document.getElementById(u).value = '';
-    }
-    document.getElementById('singleOutput').textContent = '—';
-  }
-
-  function clearSingle() {
-    for (const u of ['ft','mi','m','km']) document.getElementById(u).value = '';
-    document.getElementById('singleOutput').textContent = '—';
-    resetBtn('copySingleBtn');
-  }
-
-  function copySingle() {
-    const t = document.getElementById('singleOutput').textContent;
-    if (t === '—') return;
-    copyText(t).then(() => flashBtn('copySingleBtn'));
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     MULTI MODE
-  ═══════════════════════════════════════════════════════════════ */
-  const DIM_LABEL = { l: 'Length', w: 'Width', h: 'Height' };
-
-  function fillDim(dim, meters, skipUnit) {
-    dimMeters[dim] = meters;
-    const vals = metersToVals(meters);
-    for (const u of ['ft','mi','m','km']) {
-      if (u === skipUnit) continue;
-      document.getElementById(`${dim}_${u}`).value = parseFloat(vals[u].toFixed(decimals+2));
-    }
-    document.getElementById(`${dim}Out`).textContent = buildLine(vals);
-  }
-
-  function convertDim(dim, from) {
-    const raw = parseFloat(document.getElementById(`${dim}_${from}`).value);
-    if (isNaN(raw)) {
-      dimMeters[dim] = null;
-      clearDimOutputs(dim, from);
-      updateGeometry();
-      updateComputedRatios();
+/* ═══════════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════════ */
+function ts(date) {
+  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+function renderHistory(mode) {
+  if (mode === 'single') {
+    const list = document.getElementById('singleHistList');
+    const count = document.getElementById('singleHistCount');
+    count.textContent = `${singleHistory.length} entr${singleHistory.length === 1 ? 'y' : 'ies'}`;
+    if (!singleHistory.length) {
+      list.innerHTML = '<div class="history-empty">No saves yet. Hit Save after a conversion.</div>';
       return;
     }
-    const meters = raw * TO_M[from];
-    fillDim(dim, meters, from); // skip the field currently being typed into
-
-    // Ratio propagation
-    if (ratioOn) {
-      const rL = parseFloat(document.getElementById('ratioL').value) || 1;
-      const rW = parseFloat(document.getElementById('ratioW').value) || 1;
-      const rH = parseFloat(document.getElementById('ratioH').value) || 1;
-      const ratioMap = { l: rL, w: rW, h: rH };
-      const base = meters / ratioMap[dim]; // meters per 1 ratio unit
-      for (const other of ['l','w','h']) {
-        if (other === dim) continue;
-        fillDim(other, base * ratioMap[other]);
-      }
+    list.innerHTML = singleHistory.map((e, i) => {
+      const vals = metersToVals(e.meters);
+      const line = buildLine(vals);
+      return `<div class="history-item">
+        <div class="history-item-meta">
+          <span class="history-ts">${ts(e.ts)}</span>
+          <span class="history-type">single</span>
+        </div>
+        <div class="history-item-body">
+          <div class="history-line">${line}</div>
+        </div>
+        <div class="history-item-actions">
+          <button class="row-copy-btn" onclick="copyHistItem('single',${i})">Copy</button>
+          <button class="del-btn" onclick="deleteHistItem('single',${i})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    const list = document.getElementById('multiHistList');
+    const count = document.getElementById('multiHistCount');
+    count.textContent = `${multiHistory.length} entr${multiHistory.length === 1 ? 'y' : 'ies'}`;
+    if (!multiHistory.length) {
+      list.innerHTML = '<div class="history-empty">No saves yet. Hit Save after filling dimensions.</div>';
+      return;
     }
-
-    updateGeometry();
-    updateComputedRatios();
+    list.innerHTML = multiHistory.map((e, i) => {
+      const lines = ['l','w','h'].map(d => {
+        if (e[d] === null) return null;
+        return `${DIM_LABEL[d]}: ${buildLine(metersToVals(e[d]))}`;
+      }).filter(Boolean);
+      return `<div class="history-item">
+        <div class="history-item-meta">
+          <span class="history-ts">${ts(e.ts)}</span>
+          <span class="history-type">L/W/H</span>
+        </div>
+        <div class="history-item-body">
+          ${lines.map(l => `<div class="history-line">${l}</div>`).join('')}
+        </div>
+        <div class="history-item-actions">
+          <button class="row-copy-btn" onclick="copyHistItem('multi',${i})">Copy</button>
+          <button class="del-btn" onclick="deleteHistItem('multi',${i})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
   }
-
-  function clearDimOutputs(dim, except) {
-    for (const u of ['ft','mi','m','km']) {
-      if (u !== except) document.getElementById(`${dim}_${u}`).value = '';
-    }
-    document.getElementById(`${dim}Out`).textContent = '—';
+}
+function copyHistItem(mode, idx) {
+  let text = '';
+  if (mode === 'single') {
+    text = buildLine(metersToVals(singleHistory[idx].meters));
+  } else {
+    const e = multiHistory[idx];
+    text = ['l','w','h'].map(d => {
+      if (e[d] === null) return null;
+      return `${DIM_LABEL[d]}: ${buildLine(metersToVals(e[d]))}`;
+    }).filter(Boolean).join('\n');
   }
+  copyText(text);
+}
+function deleteHistItem(mode, idx) {
+  if (mode === 'single') singleHistory.splice(idx, 1);
+  else multiHistory.splice(idx, 1);
+  renderHistory(mode);
+}
+function clearHistory(mode) {
+  if (mode === 'single') singleHistory.length = 0;
+  else multiHistory.length = 0;
+  renderHistory(mode);
+}
 
-  function clearMulti() {
-    for (const dim of ['l','w','h']) {
-      for (const u of ['ft','mi','m','km']) document.getElementById(`${dim}_${u}`).value = '';
-      document.getElementById(`${dim}Out`).textContent = '—';
-      dimMeters[dim] = null;
-    }
-    document.getElementById('volValue').textContent  = '—';
-    document.getElementById('saValue').textContent   = '—';
-    document.getElementById('diagValue').textContent = '—';
-    document.getElementById('ratioComputed').textContent = '';
-    resetBtn('copyMultiBtn'); resetBtn('copyVolBtn');
+/* ═══════════════════════════════════════════
+   CSV EXPORT
+═══════════════════════════════════════════ */
+function exportCSV(mode) {
+  let csv = '';
+  if (mode === 'single') {
+    if (!singleHistory.length) return;
+    csv = 'Time,Feet,Miles,Meters,Kilometers\n';
+    csv += singleHistory.map(e => {
+      const v = metersToVals(e.meters);
+      return [ts(e.ts), v.ft, v.mi, v.m, v.km].join(',');
+    }).join('\n');
+  } else {
+    if (!multiHistory.length) return;
+    csv = 'Time,Length_ft,Length_mi,Length_m,Length_km,Width_ft,Width_mi,Width_m,Width_km,Height_ft,Height_mi,Height_m,Height_km,Volume_m3,SurfaceArea_m2,Diagonal_m\n';
+    csv += multiHistory.map(e => {
+      const lv = e.l !== null ? metersToVals(e.l) : {ft:'',mi:'',m:'',km:''};
+      const wv = e.w !== null ? metersToVals(e.w) : {ft:'',mi:'',m:'',km:''};
+      const hv = e.h !== null ? metersToVals(e.h) : {ft:'',mi:'',m:'',km:''};
+      const volM3   = (e.l && e.w && e.h) ? e.l*e.w*e.h : '';
+      const saM2    = (e.l && e.w && e.h) ? 2*(e.l*e.w+e.l*e.h+e.w*e.h) : '';
+      const diagM   = (e.l && e.w && e.h) ? Math.sqrt(e.l**2+e.w**2+e.h**2) : '';
+      return [ts(e.ts),lv.ft,lv.mi,lv.m,lv.km,wv.ft,wv.mi,wv.m,wv.km,hv.ft,hv.mi,hv.m,hv.km,volM3,saM2,diagM].join(',');
+    }).join('\n');
   }
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `distance-converter-${mode}-history.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
-  function copyMulti() {
-    const lines = ['l','w','h'].map(dim => {
-      const out = document.getElementById(`${dim}Out`).textContent;
-      return out === '—' ? null : `${DIM_LABEL[dim]}: ${out}`;
-    }).filter(Boolean);
-    if (!lines.length) return;
-    copyText(lines.join('\n')).then(() => flashBtn('copyMultiBtn'));
+/* ═══════════════════════════════════════════
+   NOTATION MODE
+═══════════════════════════════════════════ */
+function setNotation(mode) {
+  notationMode = mode;
+  const btns = document.querySelectorAll('.seg-btns:nth-of-type(2) .seg-btn');
+  // Target via data or just all notation buttons
+  document.querySelectorAll('[onclick^="setNotation"]').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${mode}'`));
+  });
+  updateGeometry(); // Re-render geometry labels
+}
+
+/* ═══════════════════════════════════════════
+   REFRESH ALL
+═══════════════════════════════════════════ */
+function refreshAll() {
+  for (const u of ['ft','mi','m','km']) {
+    const el = document.getElementById(u);
+    if (el && el.value !== '') { convert(u); break; }
   }
-
-  /* ═══════════════════════════════════════════════════════════════
-     VOLUME & GEOMETRY
-  ═══════════════════════════════════════════════════════════════ */
-  function updateGeometry() {
-    const L = dimMeters.l, W = dimMeters.w, H = dimMeters.h;
-
-    // Volume (needs all three)
-    if (L !== null && W !== null && H !== null) {
-      const volM3 = L * W * H;
-      // Volume in each unit (cube of the unit conversion)
-      const volLine = outputOrder.map(u => {
-        const factor = TO_M[u];
-        const vol = volM3 / (factor * factor * factor);
-        return `${fmt(vol)} ${CU_NAMES[u]}`;
-      }).join(' | ');
-      document.getElementById('volValue').textContent = volLine;
-
-      // Surface area: 2(LW + LH + WH) in m²
-      const saM2 = 2 * (L*W + L*H + W*H);
-      const saLine = outputOrder.map(u => {
-        const f = TO_M[u];
-        const sa = saM2 / (f * f);
-        return `${fmt(sa)} ${SQ_NAMES[u]}`;
-      }).join(' | ');
-      document.getElementById('saValue').textContent = saLine;
-
-      // Space diagonal: √(L²+W²+H²) in meters → all units
-      const diagM = Math.sqrt(L*L + W*W + H*H);
-      const diagVals = metersToVals(diagM);
-      document.getElementById('diagValue').textContent = buildLine(diagVals);
-    } else {
-      // Partial data
-      const anySet = L !== null || W !== null || H !== null;
-      if (!anySet) {
-        document.getElementById('volValue').textContent  = '—';
-        document.getElementById('saValue').textContent   = '—';
-        document.getElementById('diagValue').textContent = '—';
-      } else {
-        const note = 'Needs all three dimensions';
-        if (L === null || W === null || H === null) {
-          document.getElementById('volValue').textContent  = note;
-          document.getElementById('saValue').textContent   = note;
-        }
-        // Diagonal only needs two to be partial, but full needs all three
-        document.getElementById('diagValue').textContent = note;
-      }
-    }
-  }
-
-  function copyVolume() {
-    const vol  = document.getElementById('volValue').textContent;
-    const sa   = document.getElementById('saValue').textContent;
-    const diag = document.getElementById('diagValue').textContent;
-    if (vol === '—' || vol.includes('Needs')) return;
-    const text = `Volume: ${vol}\nSurface Area: ${sa}\nSpace Diagonal: ${diag}`;
-    copyText(text).then(() => flashBtn('copyVolBtn'));
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     RATIO
-  ═══════════════════════════════════════════════════════════════ */
-  let ratioOn_state = false;
-
-  function toggleRatio() {
-    ratioOn_state = !ratioOn_state;
-    ratioOn = ratioOn_state;
-    const btn = document.getElementById('ratioToggle');
-    btn.textContent = ratioOn ? 'On' : 'Off';
-    btn.classList.toggle('on', ratioOn);
-  }
-
-  function onRatioChange() {
-    // If ratio values change while on, re-propagate from whichever dim has a value (prefer L)
-    if (!ratioOn) return;
-    for (const dim of ['l','w','h']) {
-      if (dimMeters[dim] !== null) {
-        convertDim(dim, 'm'); // re-trigger from meters value
-        // But we need to use stored value not input — trigger from the stored meters
-        break;
-      }
-    }
-    // Actually retrigger properly: find which dim field has a value
-    for (const dim of ['l','w','h']) {
+  for (const dim of ['l','w','h']) {
+    if (dimMeters[dim] !== null) {
+      const vals = metersToVals(dimMeters[dim]);
       for (const u of ['ft','mi','m','km']) {
-        const el = document.getElementById(`${dim}_${u}`);
-        if (el.value !== '') { convertDim(dim, u); return; }
+        document.getElementById(`${dim}_${u}`).value = parseFloat(vals[u].toFixed(decimals+2));
       }
+      document.getElementById(`${dim}Out`).textContent = buildLine(vals);
     }
   }
+  updateGeometry(); updateComputedRatios();
+  renderHistory('single'); renderHistory('multi');
+}
 
-  function updateComputedRatios() {
-    const el = document.getElementById('ratioComputed');
-    const L = dimMeters.l, W = dimMeters.w, H = dimMeters.h;
-    if (L === null && W === null && H === null) { el.textContent = ''; return; }
-    // Normalize to L=1 (or first available)
-    const base = L ?? W ?? H;
-    if (base === 0) { el.textContent = ''; return; }
-    const rL = L !== null ? fmt(L/base) : '—';
-    const rW = W !== null ? fmt(W/base) : '—';
-    const rH = H !== null ? fmt(H/base) : '—';
-    el.innerHTML = `Computed ratio: <span>L ${rL} : W ${rW} : H ${rH}</span>`;
-  }
+/* ═══════════════════════════════════════════
+   DECIMALS
+═══════════════════════════════════════════ */
+function setDecimals(n) {
+  decimals = n;
+  document.querySelectorAll('[onclick^="setDecimals"]').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(`(${n})`));
+  });
+  refreshAll();
+}
 
-  /* ═══════════════════════════════════════════════════════════════
-     REFRESH (after decimal/order change)
-  ═══════════════════════════════════════════════════════════════ */
-  function refreshAll() {
-    // Single
-    for (const u of ['ft','mi','m','km']) {
-      const el = document.getElementById(u);
-      if (el && el.value !== '') { convert(u); break; }
+/* ═══════════════════════════════════════════
+   DRAG-AND-DROP ORDER
+═══════════════════════════════════════════ */
+let dragSrc = null;
+function initDrag() {
+  const container = document.getElementById('orderChips');
+  container.addEventListener('dragstart', e => {
+    dragSrc = e.target.closest('.order-chip');
+    if (!dragSrc) return;
+    dragSrc.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain','');
+  });
+  container.addEventListener('dragover', e => {
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+    const t = e.target.closest('.order-chip');
+    if (t && t !== dragSrc) {
+      document.querySelectorAll('.order-chip').forEach(c => c.classList.remove('drag-over'));
+      t.classList.add('drag-over');
     }
-    // Multi
-    for (const dim of ['l','w','h']) {
-      if (dimMeters[dim] !== null) {
-        const vals = metersToVals(dimMeters[dim]);
-        for (const u of ['ft','mi','m','km']) {
-          document.getElementById(`${dim}_${u}`).value = parseFloat(vals[u].toFixed(decimals+2));
-        }
-        document.getElementById(`${dim}Out`).textContent = buildLine(vals);
-      }
-    }
-    updateGeometry();
-    updateComputedRatios();
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     DECIMALS
-  ═══════════════════════════════════════════════════════════════ */
-  function setDecimals(n) {
-    decimals = n;
-    document.querySelectorAll('.dec-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+  });
+  container.addEventListener('dragleave', e => {
+    const t = e.target.closest('.order-chip');
+    if (t) t.classList.remove('drag-over');
+  });
+  container.addEventListener('drop', e => {
+    e.preventDefault();
+    const t = e.target.closest('.order-chip');
+    if (!t || t === dragSrc) return;
+    const chips = [...container.querySelectorAll('.order-chip')];
+    if (chips.indexOf(dragSrc) < chips.indexOf(t)) container.insertBefore(dragSrc, t.nextSibling);
+    else container.insertBefore(dragSrc, t);
+    outputOrder = [...container.querySelectorAll('.order-chip')].map(c => c.dataset.unit);
+    document.getElementById('orderHint').textContent = 'Output order: ' + getOrderLabel();
     refreshAll();
-  }
+  });
+  container.addEventListener('dragend', () => {
+    document.querySelectorAll('.order-chip').forEach(c => c.classList.remove('dragging','drag-over'));
+    dragSrc = null;
+  });
+}
 
-  /* ═══════════════════════════════════════════════════════════════
-     DRAG-AND-DROP ORDER
-  ═══════════════════════════════════════════════════════════════ */
-  let dragSrc = null;
+/* ═══════════════════════════════════════════
+   MODE SWITCH
+═══════════════════════════════════════════ */
+function switchMode(mode) {
+  document.getElementById('singlePanel').classList.toggle('hidden', mode !== 'single');
+  document.getElementById('multiPanel').classList.toggle('hidden', mode !== 'multi');
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active',(i===0)===(mode==='single')));
+}
 
-  function initDrag() {
-    const container = document.getElementById('orderChips');
-    container.addEventListener('dragstart', e => {
-      dragSrc = e.target.closest('.order-chip');
-      if (!dragSrc) return;
-      dragSrc.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain','');
-    });
-    container.addEventListener('dragover', e => {
-      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
-      const t = e.target.closest('.order-chip');
-      if (t && t !== dragSrc) {
-        document.querySelectorAll('.order-chip').forEach(c => c.classList.remove('drag-over'));
-        t.classList.add('drag-over');
-      }
-    });
-    container.addEventListener('dragleave', e => {
-      const t = e.target.closest('.order-chip');
-      if (t) t.classList.remove('drag-over');
-    });
-    container.addEventListener('drop', e => {
-      e.preventDefault();
-      const t = e.target.closest('.order-chip');
-      if (!t || t === dragSrc) return;
-      const chips = [...container.querySelectorAll('.order-chip')];
-      if (chips.indexOf(dragSrc) < chips.indexOf(t)) container.insertBefore(dragSrc, t.nextSibling);
-      else container.insertBefore(dragSrc, t);
-      outputOrder = [...container.querySelectorAll('.order-chip')].map(c => c.dataset.unit);
-      document.getElementById('orderHint').textContent = 'Output order: ' + getOrderLabel();
-      refreshAll();
-    });
-    container.addEventListener('dragend', () => {
-      document.querySelectorAll('.order-chip').forEach(c => c.classList.remove('dragging','drag-over'));
-      dragSrc = null;
-    });
-  }
+/* ═══════════════════════════════════════════
+   BUTTON FLASH
+═══════════════════════════════════════════ */
+function flashBtn(id) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.textContent = btn.classList.contains('save-btn') ? 'Saved!' : 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+}
+function resetBtn(id) {
+  const btn = document.getElementById(id);
+  if (btn) btn.classList.remove('copied','saved');
+}
 
-  /* ═══════════════════════════════════════════════════════════════
-     MODE SWITCH
-  ═══════════════════════════════════════════════════════════════ */
-  function switchMode(mode) {
-    document.getElementById('singlePanel').classList.toggle('hidden', mode !== 'single');
-    document.getElementById('multiPanel').classList.toggle('hidden', mode !== 'multi');
-    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active',(i===0)===(mode==='single')));
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     BUTTON FLASH
-  ═══════════════════════════════════════════════════════════════ */
-  function flashBtn(id) {
-    const btn = document.getElementById(id);
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
-  }
-  function resetBtn(id) { document.getElementById(id).classList.remove('copied'); }
-
-  initDrag();
+initDrag();
 </script>
 </body>
 </html>
