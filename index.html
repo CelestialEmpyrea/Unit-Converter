@@ -271,15 +271,25 @@
   .history-empty { padding: 20px 18px; font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-align: center; }
   .history-item {
     padding: 10px 18px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: flex-start; gap: 12px;
+    display: flex; flex-direction: column; gap: 6px;
   }
   .history-item:last-child { border-bottom: none; }
+  .history-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
   .history-item-meta { flex-shrink: 0; }
   .history-ts { font-family: var(--mono); font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px; }
   .history-type { font-family: var(--mono); font-size: 9px; color: var(--blue); letter-spacing: 0.08em; text-transform: uppercase; }
   .history-item-body { flex: 1; min-width: 0; }
   .history-line { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .history-line:last-child { margin-bottom: 0; }
+  .history-note {
+    width: 100%; margin-top: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--mono); font-size: 11px;
+    padding: 5px 8px; resize: vertical; min-height: 36px; outline: none;
+    transition: border-color 0.12s; line-height: 1.5;
+  }
+  .history-note:focus { border-color: var(--blue); color: var(--text); }
+  .history-note::placeholder { color: var(--text-muted); }
   .history-item-actions { flex-shrink: 0; display: flex; gap: 4px; }
   .history-actions { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
   .export-btn {
@@ -636,7 +646,8 @@ function saveSingle() {
     if (!isNaN(v)) { meters = v * TO_M[u]; break; }
   }
   if (meters === null) return;
-  singleHistory.unshift({ ts: new Date(), meters });
+  singleHistory.unshift({ ts: new Date(), meters, note: '' });
+  saveToStorage('single');
   renderHistory('single');
   flashBtn('saveSingleBtn');
 }
@@ -714,7 +725,8 @@ function copyDimRow(dim, outId, btnId) {
 }
 function saveMulti() {
   if (dimMeters.l === null && dimMeters.w === null && dimMeters.h === null) return;
-  multiHistory.unshift({ ts: new Date(), l: dimMeters.l, w: dimMeters.w, h: dimMeters.h });
+  multiHistory.unshift({ ts: new Date(), l: dimMeters.l, w: dimMeters.w, h: dimMeters.h, note: '' });
+  saveToStorage('multi');
   renderHistory('multi');
   flashBtn('saveMultiBtn');
 }
@@ -795,11 +807,49 @@ function updateComputedRatios() {
 }
 
 /* ═══════════════════════════════════════════
+   LOCALSTORAGE
+═══════════════════════════════════════════ */
+const LS_SINGLE = 'dc_single_history';
+const LS_MULTI  = 'dc_multi_history';
+
+function saveToStorage(mode) {
+  try {
+    if (mode === 'single') {
+      localStorage.setItem(LS_SINGLE, JSON.stringify(singleHistory.map(e => ({ ...e, ts: e.ts.toISOString() }))));
+    } else {
+      localStorage.setItem(LS_MULTI, JSON.stringify(multiHistory.map(e => ({ ...e, ts: e.ts.toISOString() }))));
+    }
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const s = localStorage.getItem(LS_SINGLE);
+    if (s) {
+      JSON.parse(s).forEach(e => singleHistory.push({ ...e, ts: new Date(e.ts), note: e.note || '' }));
+    }
+    const m = localStorage.getItem(LS_MULTI);
+    if (m) {
+      JSON.parse(m).forEach(e => multiHistory.push({ ...e, ts: new Date(e.ts), note: e.note || '' }));
+    }
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
    HISTORY
 ═══════════════════════════════════════════ */
-function ts(date) {
-  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+function tsLabel(date) {
+  const d = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const t = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return `${d} · ${t}`;
 }
+
+function updateNote(mode, idx, value) {
+  if (mode === 'single') singleHistory[idx].note = value;
+  else multiHistory[idx].note = value;
+  saveToStorage(mode);
+}
+
 function renderHistory(mode) {
   if (mode === 'single') {
     const list = document.getElementById('singleHistList');
@@ -812,17 +862,21 @@ function renderHistory(mode) {
     list.innerHTML = singleHistory.map((e, i) => {
       const vals = metersToVals(e.meters);
       const line = buildLine(vals);
+      const note = (e.note || '').replace(/"/g, '&quot;');
       return `<div class="history-item">
-        <div class="history-item-meta">
-          <span class="history-ts">${ts(e.ts)}</span>
-          <span class="history-type">single</span>
+        <div class="history-item-top">
+          <div class="history-item-meta">
+            <span class="history-ts">${tsLabel(e.ts)}</span>
+            <span class="history-type">single</span>
+          </div>
+          <div class="history-item-actions">
+            <button class="row-copy-btn" onclick="copyHistItem('single',${i})">Copy</button>
+            <button class="del-btn" onclick="deleteHistItem('single',${i})">✕</button>
+          </div>
         </div>
         <div class="history-item-body">
           <div class="history-line">${line}</div>
-        </div>
-        <div class="history-item-actions">
-          <button class="row-copy-btn" onclick="copyHistItem('single',${i})">Copy</button>
-          <button class="del-btn" onclick="deleteHistItem('single',${i})">✕</button>
+          <textarea class="history-note" placeholder="Add a note…" oninput="updateNote('single',${i},this.value)">${note}</textarea>
         </div>
       </div>`;
     }).join('');
@@ -839,17 +893,21 @@ function renderHistory(mode) {
         if (e[d] === null) return null;
         return `${DIM_LABEL[d]}: ${buildLine(metersToVals(e[d]))}`;
       }).filter(Boolean);
+      const note = (e.note || '').replace(/"/g, '&quot;');
       return `<div class="history-item">
-        <div class="history-item-meta">
-          <span class="history-ts">${ts(e.ts)}</span>
-          <span class="history-type">L/W/H</span>
+        <div class="history-item-top">
+          <div class="history-item-meta">
+            <span class="history-ts">${tsLabel(e.ts)}</span>
+            <span class="history-type">L/W/H</span>
+          </div>
+          <div class="history-item-actions">
+            <button class="row-copy-btn" onclick="copyHistItem('multi',${i})">Copy</button>
+            <button class="del-btn" onclick="deleteHistItem('multi',${i})">✕</button>
+          </div>
         </div>
         <div class="history-item-body">
           ${lines.map(l => `<div class="history-line">${l}</div>`).join('')}
-        </div>
-        <div class="history-item-actions">
-          <button class="row-copy-btn" onclick="copyHistItem('multi',${i})">Copy</button>
-          <button class="del-btn" onclick="deleteHistItem('multi',${i})">✕</button>
+          <textarea class="history-note" placeholder="Add a note…" oninput="updateNote('multi',${i},this.value)">${note}</textarea>
         </div>
       </div>`;
     }).join('');
@@ -871,11 +929,13 @@ function copyHistItem(mode, idx) {
 function deleteHistItem(mode, idx) {
   if (mode === 'single') singleHistory.splice(idx, 1);
   else multiHistory.splice(idx, 1);
+  saveToStorage(mode);
   renderHistory(mode);
 }
 function clearHistory(mode) {
   if (mode === 'single') singleHistory.length = 0;
   else multiHistory.length = 0;
+  saveToStorage(mode);
   renderHistory(mode);
 }
 
@@ -886,22 +946,28 @@ function exportCSV(mode) {
   let csv = '';
   if (mode === 'single') {
     if (!singleHistory.length) return;
-    csv = 'Time,Feet,Miles,Meters,Kilometers\n';
+    csv = 'Date,Time,Feet,Miles,Meters,Kilometers,Note\n';
     csv += singleHistory.map(e => {
       const v = metersToVals(e.meters);
-      return [ts(e.ts), v.ft, v.mi, v.m, v.km].join(',');
+      const d = e.ts.toLocaleDateString('en-US');
+      const t = e.ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const note = `"${(e.note || '').replace(/"/g, '""')}"`;
+      return [d, t, v.ft, v.mi, v.m, v.km, note].join(',');
     }).join('\n');
   } else {
     if (!multiHistory.length) return;
-    csv = 'Time,Length_ft,Length_mi,Length_m,Length_km,Width_ft,Width_mi,Width_m,Width_km,Height_ft,Height_mi,Height_m,Height_km,Volume_m3,SurfaceArea_m2,Diagonal_m\n';
+    csv = 'Date,Time,Length_ft,Length_mi,Length_m,Length_km,Width_ft,Width_mi,Width_m,Width_km,Height_ft,Height_mi,Height_m,Height_km,Volume_m3,SurfaceArea_m2,Diagonal_m,Note\n';
     csv += multiHistory.map(e => {
       const lv = e.l !== null ? metersToVals(e.l) : {ft:'',mi:'',m:'',km:''};
       const wv = e.w !== null ? metersToVals(e.w) : {ft:'',mi:'',m:'',km:''};
       const hv = e.h !== null ? metersToVals(e.h) : {ft:'',mi:'',m:'',km:''};
-      const volM3   = (e.l && e.w && e.h) ? e.l*e.w*e.h : '';
-      const saM2    = (e.l && e.w && e.h) ? 2*(e.l*e.w+e.l*e.h+e.w*e.h) : '';
-      const diagM   = (e.l && e.w && e.h) ? Math.sqrt(e.l**2+e.w**2+e.h**2) : '';
-      return [ts(e.ts),lv.ft,lv.mi,lv.m,lv.km,wv.ft,wv.mi,wv.m,wv.km,hv.ft,hv.mi,hv.m,hv.km,volM3,saM2,diagM].join(',');
+      const volM3 = (e.l && e.w && e.h) ? e.l*e.w*e.h : '';
+      const saM2  = (e.l && e.w && e.h) ? 2*(e.l*e.w+e.l*e.h+e.w*e.h) : '';
+      const diagM = (e.l && e.w && e.h) ? Math.sqrt(e.l**2+e.w**2+e.h**2) : '';
+      const d = e.ts.toLocaleDateString('en-US');
+      const t = e.ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const note = `"${(e.note || '').replace(/"/g, '""')}"`;
+      return [d,t,lv.ft,lv.mi,lv.m,lv.km,wv.ft,wv.mi,wv.m,wv.km,hv.ft,hv.mi,hv.m,hv.km,volM3,saM2,diagM,note].join(',');
     }).join('\n');
   }
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -1025,6 +1091,9 @@ function resetBtn(id) {
 }
 
 initDrag();
+loadFromStorage();
+renderHistory('single');
+renderHistory('multi');
 </script>
 </body>
 </html>
