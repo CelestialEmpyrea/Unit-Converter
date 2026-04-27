@@ -403,6 +403,8 @@
     </div>
     <div class="history-actions">
       <button class="export-btn" onclick="exportCSV('single')">Download CSV</button>
+      <button class="export-btn" onclick="document.getElementById('importSingle').click()">Import CSV</button>
+      <input type="file" id="importSingle" accept=".csv" style="display:none" onchange="importCSV('single',this)">
       <button class="clear-btn" onclick="clearHistory('single')">Clear History</button>
     </div>
   </div>
@@ -526,6 +528,8 @@
     </div>
     <div class="history-actions">
       <button class="export-btn" onclick="exportCSV('multi')">Download CSV</button>
+      <button class="export-btn" onclick="document.getElementById('importMulti').click()">Import CSV</button>
+      <input type="file" id="importMulti" accept=".csv" style="display:none" onchange="importCSV('multi',this)">
       <button class="clear-btn" onclick="clearHistory('multi')">Clear History</button>
     </div>
   </div>
@@ -940,7 +944,7 @@ function clearHistory(mode) {
 }
 
 /* ═══════════════════════════════════════════
-   CSV EXPORT
+   CSV EXPORT (with filename prompt)
 ═══════════════════════════════════════════ */
 function exportCSV(mode) {
   let csv = '';
@@ -970,12 +974,110 @@ function exportCSV(mode) {
       return [d,t,lv.ft,lv.mi,lv.m,lv.km,wv.ft,wv.mi,wv.m,wv.km,hv.ft,hv.mi,hv.m,hv.km,volM3,saM2,diagM,note].join(',');
     }).join('\n');
   }
+
+  const suggested = `distance-converter-${mode}-${new Date().toISOString().slice(0,10)}`;
+  const name = window.prompt('Name your file (no extension needed):', suggested);
+  if (name === null) return; // user cancelled
+  const filename = (name.trim() || suggested) + '.csv';
+
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `distance-converter-${mode}-history.csv`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+/* ═══════════════════════════════════════════
+   CSV IMPORT
+═══════════════════════════════════════════ */
+function importCSV(mode, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length < 2) { alert('File appears empty or invalid.'); return; }
+
+    const header = lines[0].toLowerCase();
+    let imported = 0;
+
+    if (mode === 'single') {
+      // Expected: Date,Time,Feet,Miles,Meters,Kilometers,Note
+      if (!header.includes('feet') || !header.includes('meters')) {
+        alert('This looks like a multi (L/W/H) CSV. Use Import CSV under the L/W/H history section.'); return;
+      }
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        // cols: date, time, ft, mi, m, km, note
+        if (cols.length < 4) continue;
+        const meters = parseFloat(cols[4]); // meters column
+        if (isNaN(meters)) continue;
+        const ts = parseDateTime(cols[0], cols[1]);
+        const note = cols[6] || '';
+        singleHistory.push({ ts, meters, note });
+        imported++;
+      }
+      // Sort newest first
+      singleHistory.sort((a,b) => b.ts - a.ts);
+      saveToStorage('single');
+      renderHistory('single');
+    } else {
+      // Expected: Date,Time,Length_ft...
+      if (!header.includes('length_ft') && !header.includes('length_m')) {
+        alert('This looks like a single CSV. Use Import CSV under the Single history section.'); return;
+      }
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        // cols: date, time, l_ft, l_mi, l_m, l_km, w_ft, w_mi, w_m, w_km, h_ft, h_mi, h_m, h_km, vol, sa, diag, note
+        if (cols.length < 6) continue;
+        const lm = parseFloat(cols[4]);
+        const wm = parseFloat(cols[8]);
+        const hm = parseFloat(cols[12]);
+        const ts = parseDateTime(cols[0], cols[1]);
+        const note = cols[17] || '';
+        multiHistory.push({
+          ts,
+          l: isNaN(lm) ? null : lm,
+          w: isNaN(wm) ? null : wm,
+          h: isNaN(hm) ? null : hm,
+          note
+        });
+        imported++;
+      }
+      multiHistory.sort((a,b) => b.ts - a.ts);
+      saveToStorage('multi');
+      renderHistory('multi');
+    }
+
+    input.value = ''; // reset so same file can be re-imported if needed
+    if (imported === 0) alert('No valid rows found in the file.');
+    else alert(`Imported ${imported} entr${imported === 1 ? 'y' : 'ies'}.`);
+  };
+  reader.readAsText(file);
+}
+
+// Parse a CSV line respecting quoted fields
+function parseCSVLine(line) {
+  const cols = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { cols.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  cols.push(cur);
+  return cols;
+}
+
+// Reconstruct a Date from "M/D/YYYY" date and "HH:MM:SS AM/PM" time strings
+function parseDateTime(dateStr, timeStr) {
+  try {
+    return new Date(`${dateStr} ${timeStr}`);
+  } catch(e) {
+    return new Date();
+  }
 }
 
 /* ═══════════════════════════════════════════
